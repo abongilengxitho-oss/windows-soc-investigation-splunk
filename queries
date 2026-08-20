@@ -1,1 +1,41 @@
+# 1. Raw Event Evidence
+index=main sourcetype="WinEventLog:Security" EventCode=4798
+| table _time host EventCode Account_Name _raw
+| sort - _time
+| head 10
 
+
+# 2. Account Enumeration Analysis
+index=main sourcetype="WinEventLog:Security" EventCode=4798
+| stats count by Account_Name
+| sort - count
+
+
+# 3. Event Timeline
+index=main sourcetype="WinEventLog:Security" EventCode=4798
+| timechart span=1h count
+
+
+# 4. Process Analysis
+index=main sourcetype="WinEventLog:Security" EventCode=4798
+| rex field=_raw "Process Name:\s+(?<Process_Name>[^\r\n]+)"
+| stats count by Process_Name
+| sort - count
+
+
+# 5. Affected Host Analysis
+index=main sourcetype="WinEventLog:Security" EventCode=4798
+| stats count by host
+| sort - count
+
+
+# 6. Detailed Event Investigation
+index=main sourcetype="WinEventLog:Security" EventCode=4798 Account_Name="ngxit"
+| sort - _time
+| head 1
+
+
+# 7. Detection / Triage View
+index=main sourcetype="WinEventLog:Security" EventCode=4798
+| stats count by host Account_Name
+| sort - count
